@@ -1,0 +1,110 @@
+
+public class Grafo {
+    static int[][] grafo = {
+            {0, 4, 0, 0, 0, 0, 0, 8, 0},
+            {4, 0, 8, 0, 0, 0, 0, 11, 0},
+            {0, 8, 0, 7, 0, 4, 0, 0, 2},
+            {0, 0, 7, 0, 9, 14, 0, 0, 0},
+            {0, 0, 0, 9, 0, 10, 0, 0, 0},
+            {0, 0, 4, 14, 10, 0, 2, 0, 0},
+            {0, 0, 0, 0, 0, 2, 0, 1, 6},
+            {8, 11, 0, 0, 0, 0, 1, 0, 7},
+            {0, 0, 2, 0, 0, 0, 6, 7, 0}
+        };
+    
+    //num vertices en el grafo es el num de filas
+    static final int NumVertices  = grafo[0].length;
+    //se establece para el camino
+    static final int Camino = -1;
+    
+    public static void main(String[] args) {
+    	dijkstra(grafo, 0);
+    }
+    	
+   //metodo para encontrar distancia minima
+    private static int distanciaMin(int[] dist, boolean[] verticeYaProcesado){
+       // inciliza valores minimo como max
+       int min = Integer.MAX_VALUE; int min_index=0;
+     
+       //se recorren todos los vertices de la matriz
+       for (int v = 0; v < NumVertices; v++) {
+    	   //se revisa que el vertice aun no ha sido procesado y que la distancia hasta 
+    	   //el vertice i sea menor al minimo encontrado hasta el momento
+           if (verticeYaProcesado[v] == false && dist[v] <= min) {
+        	   //se reestablece la distancia minima
+               min = dist[v];
+               //se guarda el vertice con dist minima
+               min_index = v;
+            }   
+       }
+       //regresamos el vertice para marcarlo como ya procesado depsues
+       return min_index;
+    }
+    
+    private static void imprimirSolucion(int[] dist, int n, int[] camino){
+       System.out.println("Distancia del vertice desde el origen:\n");
+       System.out.println("Vertice" + "\t   " + "Distancia min" + "\t" + "Camino min");
+       for (int i = 0; i < NumVertices; i++) {
+    	   System.out.print(i + " \t   " + dist[i] + "\t\t\t");
+    	   imprimirCamino(camino,i);
+    	   System.out.print("\n");
+       }
+    }
+    
+    public static void imprimirCamino(int[] camino, int verticeActual) {
+    	//metodo recursivo para imprimir camino
+    	//caso base: que el vertice ha sido procesado
+        if (verticeActual == Camino)
+        {
+            return;
+        }
+        imprimirCamino(camino, camino[verticeActual]);
+        System.out.print(verticeActual + " ");
+    }
+    
+    private static void dijkstra(int[][] grafo, int src){
+        // este arreglo guarda la distancia mas corta desde el nodo incicial src hasta el vertice i 
+    	int[] dist = new int[NumVertices]; 
+        //Este arreglo guarda a los vertices que han sido procesado (que todos los vertices alrededor han sido visitados) como true 
+         boolean[] verticeYaProcesado = new boolean[NumVertices]; 
+     
+         // Iinciializa todas las distancias como max y a todos los vertices como si no han sido procesados (false)
+         for (int i = 0; i < NumVertices; i++) {
+            dist[i] = Integer.MAX_VALUE;
+            verticeYaProcesado[i] = false;
+         }
+         // se asigna la distancia del vertice a si mismo como cero
+         dist[src] = 0;
+         //se declara un arreglo para guardar vertices del camino mas corto
+         int[] caminoCorto = new int[NumVertices];
+         caminoCorto[src] = Camino;
+     
+         //Encuentra el camino mas corto 
+         for (int count = 0; count < NumVertices-1; count++){
+
+           //Toma el vertice con la distancia minima del cojunto de vertices aun no procesados
+           //En la primera iteracion siempre se devuelve src
+           int u = distanciaMin(dist, verticeYaProcesado);
+     
+           // Se marca al vertice como ya procesado
+           verticeYaProcesado[u] = true;
+     
+           // Reetablecemos las distancias de los vertices adyacentes del vertice elegido(u)
+           for (int v = 0; v < NumVertices; v++) {
+
+             //Se actualiza la dist[v] solo si no se ha procesado el vertice,hay un
+             //camino desde u a v y la distancia (peso) total del camino desde src (nuestro vertice inicial
+        	 //hasta v a traves de u es el camino con menor distancia que el camino actual dist[v]
+             if (!verticeYaProcesado[v] && grafo[u][v] > 0 && dist[u] != Integer.MAX_VALUE && dist[u]+grafo[u][v] < dist[v]) {
+            	 //se van guardando lo vertices elegidos para imrpimir el camino mas corto despues
+            	 caminoCorto[v] = u;
+            	 dist[v] = dist[u] + grafo[u][v];
+                
+                }
+         }
+           // se imprime el arreglo con las distancias
+         }
+         imprimirSolucion(dist, NumVertices, caminoCorto);
+
+    }
+}
